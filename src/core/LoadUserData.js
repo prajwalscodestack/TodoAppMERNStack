@@ -1,8 +1,18 @@
 import React, { Component, useEffect, useState } from "react";
-import { getAllTask, getAllCategories, createTodo,deleteTodo,updateStatus} from "./coreapicalls";
+import ReactDOM from "react-dom";
+
+import {
+  getAllTask,
+  getAllCategories,
+  createTodo,
+  deleteTodo,
+  updateStatus,
+} from "./coreapicalls";
 import { isAutheticated } from "../Auth/apicall";
 import { format } from "morgan";
-
+import EditTodo from "./edit";
+import { Redirect, Link } from "react-router-dom";
+import $ from 'jquery';
 function LoadUserData() {
   const { user, token } = isAutheticated();
 
@@ -57,35 +67,7 @@ function LoadUserData() {
       });
   };
 
-  //handling update todo submit
-  const handleUpdateSubmit = (event) => {
-    event.preventDefault();
-    console.log(title, description, category, status, due);
-    // createTodo(token, user, values)
-    //   .then((data) => {
-    //     console.log(data);
-    //     if (data.error) {
-    //       setValues({ ...values, error: data.error, success: false });
-    //     } else {
-    //       setValues({
-    //         ...values,
-    //         title: "",
-    //         description: "",
-    //         category: "",
-    //         status: "",
-    //         due: "",
-    //         success: true,
-    //       });
-
-    //       alert("new todo created");
-    //       window.location.reload();
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
-  };
-
+ 
   //loading all the required data in page
   const preload = () => {
     const { user, token } = isAutheticated();
@@ -134,11 +116,7 @@ function LoadUserData() {
                   <i className="fa fa-plus">New Task</i>
                 </button>
               </li>
-              <li className="list-group-item">
-                <button type="button" className="btn btn-warning">
-                  <i className="fa fa-plus">New Label</i>
-                </button>
-              </li>
+              
             </ul>
           </li>
         </ul>
@@ -164,9 +142,6 @@ function LoadUserData() {
               data-target="#createTodo"
             >
               <i className="fa fa-plus">New Task</i>
-            </button>
-            <button type="button" className="btn btn-secondary">
-              <i className="fa fa-plus">New Label</i>
             </button>
           </div>
         </p>
@@ -221,6 +196,7 @@ function LoadUserData() {
         {task.map((task, index) => {
           return (
             <div className="d-flex flex-row-reverse ">
+              {/* model */}
               <div className="card" style={{ width: "20rem" }} key={index}>
                 <div className="card-body">
                   <h5 style={{ color: "red" }} className="card-title">
@@ -242,24 +218,42 @@ function LoadUserData() {
                       ? "Deadline:N/A"
                       : "Deadline:" + task.due}
                   </p>
+
                   <button
                     type="button"
-                    data-toggle="modal"
-                    data-target="#updateTodo"
+                    // data-toggle="modal"
+                    // data-target="#updateTodo"
                     className="btn btn-outline-dark"
+            
                   >
                     Edit
                   </button>
-                  <button type="button" onClick={()=>{deleteTodo(task._id,user._id,token).then(data=>{
-                    console.log(data);
-                    alert("deleted");
-                  }); window.location.reload()}} className="btn btn-outline-dark">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      deleteTodo(task._id, user._id, token).then((data) => {
+                        console.log(data);
+                        alert("deleted");
+                      });
+                      window.location.reload();
+                    }}
+                    className="btn btn-outline-dark"
+                  >
                     Delete
                   </button>
-                  <button type="button" onClick={()=>{updateStatus(task._id,"Completed",user._id,token).then(data=>{
-                      console.log(data);
-                      alert("Marked As Completed");
-                  });window.location.reload();}} className="btn btn-outline-dark">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateStatus(task._id, "Completed", user._id, token).then(
+                        (data) => {
+                          console.log(data);
+                          alert("Marked As Completed");
+                        }
+                      );
+                      window.location.reload();
+                    }}
+                    className="btn btn-outline-dark"
+                  >
                     MarkDone
                   </button>
                 </div>
@@ -271,108 +265,9 @@ function LoadUserData() {
     );
   };
 
-  const updateTodoForm = () => {
-    let arr = [
-      "btn btn-primary",
-      "btn btn-warning",
-      "btn btn-danger",
-      "btn btn-warning",
-      "btn btn-info",
-      "btn btn-dark",
-      "btn btn-success",
-      "btn btn-light",
-    ];
-    return (
-      <form onSubmit={handleUpdateSubmit}>
-        <div className="form-group">
-          <input
-            className="form-control"
-            type="text"
-            placeholder="title"
-            name="title"
-            onChange={handleChange("title")}
-            value={title}
-          />
-          <textarea
-            className="form-control"
-            rows="2"
-            cols="10"
-            placeholder="describe"
-            name="description"
-            onChange={handleChange("description")}
-            value={description}
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="text-dark">category</label>
-          <br />
-          {categories.map((category, index) => {
-            return (
-              <label className={arr[index]} key={index}>
-                <input
-                  type="radio"
-                  name="category"
-                  value={category.name}
-                  onChange={handleChange("category")}
-                />
-                {category.name}
-              </label>
-            );
-          })}
-        </div>
-        <div className="form-group">
-          <label className="text-dark">Set Status</label>
-          <br />
-          <label className="btn btn-success">
-            <input
-              type="radio"
-              value="Completed"
-              name="status"
-              onChange={handleChange("status")}
-            />
-            Completed
-          </label>
-          <label className="btn btn-danger">
-            <input
-              type="radio"
-              name="status"
-              value="InProgress"
-              onChange={handleChange("status")}
-            />
-            InProgress
-          </label>
-          <label className="btn btn-warning">
-            <input
-              type="radio"
-              name="status"
-              value="Assigned"
-              onChange={handleChange("status")}
-            />
-            New Assigned
-          </label>
-          <label>
-            <input
-              type="date"
-              value={due}
-              name="due"
-              className="form-control"
-              onChange={handleChange("due")}
-            />
-            Deadline
-          </label>
-        </div>
-
-        <button type="button" className="btn btn-danger" data-dismiss="modal">
-          Cancel
-        </button>
-        <input type="reset" className="btn btn-secondary" />
-        <button type="submit" className="btn btn-primary">
-          Add
-        </button>
-      </form>
-    );
-  };
+  // function loadUpdateModel(index, ti, desc, todoid) {
+  //   $("#updateTodo").modal()
+  // }
 
   //load category
   const loadTodoForm = () => {
@@ -519,10 +414,10 @@ function LoadUserData() {
         </div>
       </div>
       {/* // update todo modal */}
-      <div
+      {/* <div
         className="modal fade"
         id="updateTodo"
-        tabindex="-1"
+        tabIndex="-1"
         role="dialog"
         aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true"
@@ -531,7 +426,7 @@ function LoadUserData() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="exampleModalLongTitle">
-                Add Todo
+                 Add Todo
               </h5>
               <button
                 type="button"
@@ -542,11 +437,19 @@ function LoadUserData() {
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div className="modal-body">{updateTodoForm()}</div>
+            <div className="modal-body">
+              <EditTodo
+                index=""
+                title=""              
+                description=""
+                todoId=""
+              ></EditTodo>
+            </div>
             <div className="modal-footer"></div>
           </div>
         </div>
-      </div>
+      </div> */}
+ 
     </div>
   );
 }

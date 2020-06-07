@@ -35,7 +35,7 @@ class Signup extends React.Component {
     let password=this.state.password;
     signup({name,email,password}).then(data=>{
       if(data.error){
-        this.setState({error:data.error,success:true});
+        this.setState({error:data.error,success:false});
       }
       else{
         this.setState({name:'',email:"",password:"",success:true})
@@ -53,7 +53,24 @@ class Signup extends React.Component {
               style={{ display: this.state.success ? "" : "none" }}
             >
               New account was created successfully. Please
-              <Link to="/">Login Here</Link>
+              <Link to="/user/signin">Login Here</Link>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  errorMessage() {
+    return (
+      <div className="row">
+        <div className="col-md-6 offset-sm-3 text-left">
+          {this.state.error && (
+            <div
+              className="alert alert-warning"
+              style={{ display: this.state.error ? "" : "none" }}
+            >
+             {this.state.error} 
+              {/* <Link to="/">Login Here</Link> */}
             </div>
           )}
         </div>
@@ -99,6 +116,7 @@ class Signup extends React.Component {
   render() {
     return (
       <Base>
+        {this.errorMessage()}
         {this.successMessage()}
         {this.signUpForm()}
         {/* {this.performRedirect()} */}

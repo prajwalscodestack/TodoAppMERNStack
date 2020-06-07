@@ -70,3 +70,21 @@ export const updateStatus = (todoId,status, userId, token) => {
     })
     .catch(err => console.log(err));
 };
+
+export const updateTodo = (token,todoId, userId,todo) => {
+
+ return fetch(`${API}/todo/updateTodo/${todoId}/${userId}`, {
+   method: "PUT",
+   headers: {
+     Accept: "application/json",
+     "Content-Type": "application/json",
+     Authorization: `Bearer ${token}`
+   },
+   body: JSON.stringify(todo)
+ })
+   .then(response => {
+     console.log(response);
+     return response.json();
+   })
+   .catch(err => console.log(err));
+};
